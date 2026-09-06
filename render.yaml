@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: jarvis-web-v1-1
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
