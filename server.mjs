@@ -86,7 +86,7 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.use((_req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 app.listen(port, () => {
   console.log(`JARVIS V1.1 running at http://localhost:${port}`);
