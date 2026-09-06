@@ -5,5 +5,13 @@ services:
     buildCommand: npm install
     startCommand: npm start
     envVars:
-      - key: GEMINI_API_KEY
+      - key: OPENROUTER_API_KEY
         sync: false
+      - key: OPENROUTER_MODEL
+        value: openrouter/free
+      - key: OPENROUTER_WEB_SEARCH
+        value: "false"
+      - key: OPENROUTER_SITE_URL
+        sync: false
+      - key: OPENROUTER_SITE_NAME
+        value: JARVIS Web

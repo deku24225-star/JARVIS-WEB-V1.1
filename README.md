@@ -1,37 +1,76 @@
-# JARVIS Web V1.1
+# JARVIS Web V1.1 — OpenRouter Edition
 
-Mobile-first JARVIS-style PWA upgraded with a secure server-side Gemini AI brain.
+Mobile-first JARVIS web/PWA with a server-side AI backend.
 
-## What changed from V1
-- Real Gemini AI conversation through a Node/Express backend.
-- Gemini API key stays server-side; it is never shipped to browser JavaScript.
-- Multi-turn context is kept locally in the browser and sent in a bounded window.
-- Gemini Google Search grounding is enabled for current-information questions.
-- Existing V1 features remain: voice input/TTS, English/Hindi, time/date, weather, search, YouTube, Maps, local memory, wake phrase, stop/mute, and confirmation-gated call/message handoffs.
-- `/api/health` reports backend readiness without exposing secrets.
+## AI provider
 
-## Run locally
+This edition uses **OpenRouter** instead of Gemini. The browser never receives the OpenRouter API key.
 
-1. Install Node.js 20+.
-2. Open this folder in a terminal.
-3. Run `npm install`.
-4. Copy `.env.example` to `.env`.
-5. Put your Gemini API key in `.env` as `GEMINI_API_KEY=...`.
-6. Run `npm start`.
-7. Open `http://localhost:3000`.
+Default model:
 
-Do not commit `.env` or your API key.
+`openrouter/free`
 
-## Deployment
+You can change `OPENROUTER_MODEL` on the server/Render without changing frontend code.
 
-V1.1 needs a Node-capable host because the AI key must remain on the server. GitHub Pages can still host the static V1 frontend, but it cannot safely run this backend.
+## Local setup
 
-A simple option is a Node web service such as Render. Set the environment variable `GEMINI_API_KEY` in the host dashboard and use `npm start` as the start command.
+```bash
+npm install
+```
 
-## Security notes
+Create `.env`:
 
-- The browser never receives the Gemini API key.
-- The backend limits request size and conversation history.
-- The model is not trusted to perform protected device actions.
-- Sensitive call/message handoffs remain behind the existing UI authorization dialog.
-- Android/device control is intentionally not claimed by this web build.
+```env
+OPENROUTER_API_KEY=your_key_here
+OPENROUTER_MODEL=openrouter/free
+OPENROUTER_WEB_SEARCH=false
+OPENROUTER_SITE_URL=http://localhost:3000
+OPENROUTER_SITE_NAME=JARVIS Web
+PORT=3000
+```
+
+Then:
+
+```bash
+npm start
+```
+
+Open `http://localhost:3000`.
+
+## Render setup
+
+Create a Node Web Service connected to this repository.
+
+Build command:
+
+`npm install`
+
+Start command:
+
+`npm start`
+
+Environment variables:
+
+- `OPENROUTER_API_KEY` = your OpenRouter key
+- `OPENROUTER_MODEL` = `openrouter/free` (default)
+- `OPENROUTER_WEB_SEARCH` = `false` initially
+- `OPENROUTER_SITE_URL` = your deployed JARVIS URL (optional)
+- `OPENROUTER_SITE_NAME` = `JARVIS Web`
+
+Never commit the API key to GitHub or put it in `app.js`/`index.html`.
+
+## Web search
+
+Set `OPENROUTER_WEB_SEARCH=true` only if you want OpenRouter web-search grounding. OpenRouter documents that web search can add cost even when using free models, so it is deliberately opt-in.
+
+## Health check
+
+Open `/api/health` on your deployed service. It should report:
+
+```json
+{
+  "ok": true,
+  "aiConfigured": true,
+  "provider": "OpenRouter"
+}
+```
