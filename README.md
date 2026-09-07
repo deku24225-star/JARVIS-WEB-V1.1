@@ -1,76 +1,44 @@
-# JARVIS Web V1.1 — OpenRouter Edition
+# JARVIS Web V1.2 — OpenRouter Edition
 
-Mobile-first JARVIS web/PWA with a server-side AI backend.
+V1.2 upgrades the existing V1.1 web/PWA without exposing the OpenRouter key.
 
-## AI provider
+## V1.2 architecture
 
-This edition uses **OpenRouter** instead of Gemini. The browser never receives the OpenRouter API key.
+Browser/PWA → JARVIS UI → local natural-command router → security confirmation → browser actions
+                                   ↘ OpenRouter backend → AI response
+                                   ↘ Memory Core (explicit, local, user-controlled)
 
-Default model:
+### Memory decision
+For the current single-device PWA, explicit memories are stored in browser `localStorage`. This is intentionally limited: it is persistent on that device/browser, transparent to the user, and does not require a database yet. The code keeps a repository-like memory boundary so V1.3+ can replace the storage implementation with an encrypted/server database without rewriting the UI or command layer.
 
-`openrouter/free`
+Conversation history is separate from persistent memory and is also local. It is bounded and only sent as recent context to the backend.
 
-You can change `OPENROUTER_MODEL` on the server/Render without changing frontend code.
+Do not treat localStorage as a secure vault. Sensitive secrets should never be stored there. V1.2 only stores explicit, ordinary user-requested memories.
 
-## Local setup
+## Current information
 
-```bash
-npm install
-```
+The backend computes current server date/time dynamically and passes it to the model. There is no hard-coded year. Current-information requests are detected separately. If `OPENROUTER_WEB_SEARCH=true`, V1.2 enables OpenRouter's web plugin for requests that look current; otherwise JARVIS must not pretend it has live web grounding.
 
-Create `.env`:
+## Natural commands
 
-```env
-OPENROUTER_API_KEY=your_key_here
-OPENROUTER_MODEL=openrouter/free
-OPENROUTER_WEB_SEARCH=false
-OPENROUTER_SITE_URL=http://localhost:3000
-OPENROUTER_SITE_NAME=JARVIS Web
-PORT=3000
-```
+Common browser-capable intents are handled without shortcut buttons: time, date, weather, Google search, YouTube, Maps, remember/forget memory, call preparation, and message preparation. Sensitive actions use the existing confirmation dialog.
 
-Then:
+Alarms, reliable background reminders, private Android-app control, and deep device control remain native-Android work for later versions; V1.2 does not fake those capabilities.
 
-```bash
-npm start
-```
+## Formatting / TTS
 
-Open `http://localhost:3000`.
+AI replies are rendered as safe, lightweight Markdown-like HTML. TTS receives a separate speech-safe representation so it does not speak Markdown markers, headings, or words such as “asterisk”/“hashtag”.
 
-## Render setup
+## Render
 
-Create a Node Web Service connected to this repository.
+Build: `npm install`
+Start: `npm start`
 
-Build command:
+Environment:
+- `OPENROUTER_API_KEY`
+- `OPENROUTER_MODEL` (default `openrouter/free`)
+- `OPENROUTER_WEB_SEARCH` (`false` by default)
+- `OPENROUTER_SITE_URL`
+- `OPENROUTER_SITE_NAME`
 
-`npm install`
-
-Start command:
-
-`npm start`
-
-Environment variables:
-
-- `OPENROUTER_API_KEY` = your OpenRouter key
-- `OPENROUTER_MODEL` = `openrouter/free` (default)
-- `OPENROUTER_WEB_SEARCH` = `false` initially
-- `OPENROUTER_SITE_URL` = your deployed JARVIS URL (optional)
-- `OPENROUTER_SITE_NAME` = `JARVIS Web`
-
-Never commit the API key to GitHub or put it in `app.js`/`index.html`.
-
-## Web search
-
-Set `OPENROUTER_WEB_SEARCH=true` only if you want OpenRouter web-search grounding. OpenRouter documents that web search can add cost even when using free models, so it is deliberately opt-in.
-
-## Health check
-
-Open `/api/health` on your deployed service. It should report:
-
-```json
-{
-  "ok": true,
-  "aiConfigured": true,
-  "provider": "OpenRouter"
-}
-```
+Never commit the API key.
